@@ -2,13 +2,25 @@ pipeline {
   agent any
   stages {
     stage('SonarQube Analysis') {
+      environment {
+        scannerHome = 'SonarQube Scanner'
+      }
       steps {
-        sh '''sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=renanmorais_calcprev-api -Dsonar.organization=renanmorais -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=b235baecf766a5522c23877f1d1ab93f12732bf9"
-       '''
+        withSonarQubeEnv('sonarqube') {
+          sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=renanmorais_SpringBoot-JasperReports -Dsonar.organization=renanmorais -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=6b514a844f0e03071ce3e7585ee1f5a8760c77c5"
+        }
+
+        timeout(time: 10, unit: 'MINUTES') {
+          waitForQualityGate true
+        }
+
       }
     }
   }
   environment {
-    scannerHome = 'SonarQube Scanner'
+    pipeline = "${env.JOB_NAME}"
+  }
+  options {
+    timestamps()
   }
 }
